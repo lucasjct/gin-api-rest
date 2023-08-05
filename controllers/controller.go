@@ -8,8 +8,11 @@ import (
 	"github.com/lucasjct/api-go-gin/models"
 )
 
-func ShowAllAlumns(c *gin.Context) {
-	c.JSON(200, models.Alunos)
+func ShowAllStudents(c *gin.Context) {
+	var aluno models.Aluno
+	database.DB.Find(&aluno)
+	c.JSON(200, aluno)
+
 }
 
 // "c" property is about the request's context. So, we can acces some features when type "c."
@@ -33,4 +36,28 @@ func CreateNewStudent(c *gin.Context) {
 	}
 	database.DB.Create(&aluno)   // create data
 	c.JSON(http.StatusOK, aluno) // feedback request ok
+}
+
+func SearchStudentById(c *gin.Context) {
+	var aluno models.Aluno
+	id := c.Params.ByName("id")
+	database.DB.First(&aluno, id)
+
+	if aluno.ID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"Not Found": "Aluno não encontrado."})
+		return
+	}
+
+	c.JSON(http.StatusOK, aluno)
+
+}
+
+func DeleteStudent(c *gin.Context) {
+	var aluno models.Aluno
+	id := c.Params.ByName("id")
+	database.DB.Delete(&aluno, id)
+	c.JSON(http.StatusOK, gin.H{
+		"data": "Aluno deletado com sucesso."})
+
 }

@@ -19,5 +19,5 @@ func ConectaComBancoDeDados() {
 	if err != nil {
 		log.Panic("Erro ao conectar com banco de dados")
 	}
-	DB.AutoMigrate(&models.Aluno{}) // auto migrate of struct's data.
+	DB.AutoMigrate(&models.Aluno{}) // automigrate of struct's data.
 }
