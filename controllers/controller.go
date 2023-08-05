@@ -9,7 +9,7 @@ import (
 )
 
 func ShowAllStudents(c *gin.Context) {
-	var aluno models.Aluno
+	var aluno []models.Aluno
 	database.DB.Find(&aluno)
 	c.JSON(200, aluno)
 
