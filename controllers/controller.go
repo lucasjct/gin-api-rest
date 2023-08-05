@@ -77,3 +77,22 @@ func UpdateStudent(c *gin.Context) {
 	c.JSON(http.StatusOK, aluno)
 
 }
+
+// search student by CPF. Diferent from search by Id, here work with c.Param instead c.Params
+// and anotger diference is that database work with "Where" instead "ByName" and access other struct data to work in database
+// for exemple:&models.Aluno{CPF: cpf}).
+
+func SearchByCPF(c *gin.Context) {
+	var aluno models.Aluno
+	cpf := c.Param("cpf")
+	database.DB.Where(&models.Aluno{CPF: cpf}).First(&aluno)
+
+	if aluno.ID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"Not Found": "Aluno não encontrado."})
+		return // if there is err, out of function
+	}
+
+	c.JSON(http.StatusOK, aluno)
+
+}
