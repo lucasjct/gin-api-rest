@@ -12,9 +12,10 @@ API Rest with Gin and Gorm
 
 ## Tests  
 
-All tests are into directory /tests. The commands bellow must be run in this directory.
+All tests are into directory /tests. The commands bellow must be run in this directory.   
 
-For run all test and type:  
+For run all test type:    
 * `go run main_tests.go`  
-For run just one test, type:    
-* `go test - run <yor function test name>`   
+
+For run just one test type:    
+* `go test - run <yor function test name>`    
