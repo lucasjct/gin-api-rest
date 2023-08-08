@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -64,11 +66,43 @@ func TestCheckShowAllStudentsFromList(t *testing.T) {
 
 func TestSearchStudentByCpf(t *testing.T) {
 	database.ConectaComBancoDeDados()
-	CreateStudentMock()
-	defer DeleteStudentMock()
+	CreateStudentMock()       // evoke mock function for create a student
+	defer DeleteStudentMock() // evoke mock function for delete a student
 	r := SetupTestRoutes()
 	r.GET("/alunos/cpf/:cpf", controllers.SearchByCPF)
 	req, _ := http.NewRequest("GET", "/alunos/cpf/12345678901", nil)
+	response := httptest.NewRecorder()
+	r.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusOK, response.Code)
+
+}
+
+func TestSearchStudentByID(t *testing.T) {
+
+	database.ConectaComBancoDeDados()
+	CreateStudentMock()
+	defer DeleteStudentMock()
+	r := SetupTestRoutes()
+	r.GET("/alunos/:id", controllers.SearchStudentById)
+	pathOfSearch := "/alunos/" + strconv.Itoa(ID)
+	req, _ := http.NewRequest("GET", pathOfSearch, nil)
+	response := httptest.NewRecorder()
+	r.ServeHTTP(response, req)
+	var studentMock models.Aluno
+	json.Unmarshal(response.Body.Bytes(), &studentMock)
+	assert.Equal(t, "Nome do Aluno Teste", studentMock.Nome)
+	assert.Equal(t, "12345678901", studentMock.CPF)
+	assert.Equal(t, "123456789", studentMock.RG)
+	assert.Equal(t, http.StatusOK, response.Code)
+}
+
+func TestDeleteStudent(t *testing.T) {
+	database.ConectaComBancoDeDados()
+	CreateStudentMock()
+	r := SetupTestRoutes()
+	r.DELETE("/alunos/:id", controllers.DeleteStudent)
+	pathOfSearch := "/alunos/" + strconv.Itoa(ID) // get path dynamically
+	req, _ := http.NewRequest("DELETE", pathOfSearch, nil)
 	response := httptest.NewRecorder()
 	r.ServeHTTP(response, req)
 	assert.Equal(t, http.StatusOK, response.Code)
