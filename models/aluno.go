@@ -5,7 +5,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// tys - for shortcut
+//! type tys - for shortcut to build a struct
 
 // serializing data
 type Aluno struct {
