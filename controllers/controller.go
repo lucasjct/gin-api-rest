@@ -16,7 +16,7 @@ func ShowAllStudents(c *gin.Context) {
 }
 
 // "c" property is about the request's context. So, we can acces some features when type "c."
-// c property get all context, he has all controll over request's context.
+// "c" property get all context, he has all controll over request's context.
 func Hello(c *gin.Context) {
 
 	// Params's gin. Is the resource from Context. So with c poperty we can define the url's params.
@@ -105,4 +105,18 @@ func SearchByCPF(c *gin.Context) {
 
 	c.JSON(http.StatusOK, aluno)
 
+}
+
+// Controllers for HTML pages.
+func IndexHTML(c *gin.Context) {
+	var alunos []models.Aluno // slice
+	database.DB.Find(&alunos)
+
+	c.HTML(http.StatusOK, "index.html", gin.H{
+		"alunos": alunos,
+	})
+}
+
+func RouteNotFound(c *gin.Context) {
+	c.HTML(http.StatusNotFound, "404.html", nil)
 }

@@ -127,5 +127,4 @@ func TestEditStudent(t *testing.T) {
 	assert.Equal(t, "47123456789", studentMockUpdate.CPF)
 	assert.Equal(t, "123456700", studentMockUpdate.RG)
 	assert.Equal(t, "Nome do Aluno Teste", studentMockUpdate.Nome)
-
 }
