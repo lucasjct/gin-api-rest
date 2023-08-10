@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -19,7 +20,7 @@ import (
 var ID int // use this variable in test by id.
 
 func SetupTestRoutes() *gin.Engine {
-	gin.SetMode(gin.ReleaseMode) // Simplify the tests output
+	gin.SetMode(gin.TestMode) // Simplify the tests output
 	routes := gin.Default()
 	return routes
 }
@@ -40,7 +41,7 @@ func DeleteStudentMock() {
 
 func TesChecktStatusCodeHello(t *testing.T) { // All tests function should be Capitalize and there are 'Test' in function name.
 
-	r := SetupTestRoutes()             // instance of routes.
+	r := SetupTestRoutes()             // instance from /routes.
 	r.GET("/:nome", controllers.Hello) // endpoint that will be tested.
 	req, _ := http.NewRequest("GET", "/anyname", nil)
 	response := httptest.NewRecorder() // this function receive all response request and storage in variable.
@@ -59,7 +60,7 @@ func TestCheckShowAllStudentsFromList(t *testing.T) {
 	r.GET("/alunos", controllers.ShowAllStudents)
 	req, _ := http.NewRequest("GET", "/alunos", nil)
 	response := httptest.NewRecorder()
-	r.ServeHTTP(response, req)
+	r.ServeHTTP(response, req) // realize request
 	assert.Equal(t, http.StatusOK, response.Code)
 
 }
@@ -72,7 +73,7 @@ func TestSearchStudentByCpf(t *testing.T) {
 	r.GET("/alunos/cpf/:cpf", controllers.SearchByCPF)
 	req, _ := http.NewRequest("GET", "/alunos/cpf/12345678901", nil)
 	response := httptest.NewRecorder()
-	r.ServeHTTP(response, req)
+	r.ServeHTTP(response, req) // realize request
 	assert.Equal(t, http.StatusOK, response.Code)
 
 }
@@ -87,7 +88,7 @@ func TestSearchStudentByID(t *testing.T) {
 	pathOfSearch := "/alunos/" + strconv.Itoa(ID)
 	req, _ := http.NewRequest("GET", pathOfSearch, nil)
 	response := httptest.NewRecorder()
-	r.ServeHTTP(response, req)
+	r.ServeHTTP(response, req) // realize request
 	var studentMock models.Aluno
 	json.Unmarshal(response.Body.Bytes(), &studentMock)
 	assert.Equal(t, "Nome do Aluno Teste", studentMock.Nome)
@@ -98,13 +99,33 @@ func TestSearchStudentByID(t *testing.T) {
 
 func TestDeleteStudent(t *testing.T) {
 	database.ConectaComBancoDeDados()
-	CreateStudentMock()
+	CreateStudentMock() // in Delete method don't use the function DeleteStudentMock() below because the method that will be tested already is DELETE.
 	r := SetupTestRoutes()
 	r.DELETE("/alunos/:id", controllers.DeleteStudent)
 	pathOfSearch := "/alunos/" + strconv.Itoa(ID) // get path dynamically
 	req, _ := http.NewRequest("DELETE", pathOfSearch, nil)
 	response := httptest.NewRecorder()
-	r.ServeHTTP(response, req)
+	r.ServeHTTP(response, req) // realize request
 	assert.Equal(t, http.StatusOK, response.Code)
+
+}
+
+func TestEditStudent(t *testing.T) {
+	database.ConectaComBancoDeDados()
+	CreateStudentMock()
+	defer DeleteStudentMock()
+	r := SetupTestRoutes()
+	r.PATCH("/alunos/:id", controllers.UpdateStudent)
+	student := models.Aluno{Nome: "Nome do Aluno Teste", CPF: "47123456789", RG: "123456700"}
+	jsonValue, _ := json.Marshal(student) // convert em JSON
+	pathEdit := "/alunos/" + strconv.Itoa(ID)
+	req, _ := http.NewRequest("PATCH", pathEdit, bytes.NewBuffer(jsonValue))
+	response := httptest.NewRecorder()
+	r.ServeHTTP(response, req) // realize request
+	var studentMockUpdate models.Aluno
+	json.Unmarshal(response.Body.Bytes(), &studentMockUpdate)
+	assert.Equal(t, "47123456789", studentMockUpdate.CPF)
+	assert.Equal(t, "123456700", studentMockUpdate.RG)
+	assert.Equal(t, "Nome do Aluno Teste", studentMockUpdate.Nome)
 
 }
