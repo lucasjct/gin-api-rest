@@ -107,7 +107,7 @@ func SearchByCPF(c *gin.Context) {
 
 }
 
-// Controllers for HTML pages.
+// Controllers for HTML pages. Here, the functions get params from routes
 func IndexHTML(c *gin.Context) {
 	var alunos []models.Aluno // slice
 	database.DB.Find(&alunos)
